@@ -1,7 +1,8 @@
 ---
-title: "Community Mattermost running on Kubernetes"
+title: "Community Mattermost"
 date: 2018-11-06T12:36:58+01:00
-subsection: internal
+subsection: infrastructure/kubernetes
+weight: 10
 ---
 
 # Community Mattermost running on Kubernetes
