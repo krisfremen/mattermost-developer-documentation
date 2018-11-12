@@ -4,35 +4,33 @@ date: 2018-11-07T15:24:42+01:00
 weight: 10
 ---
 
-This page have the intent to help the developers access and perform any type of maintenance in the Production Mattermost Kubernetes Cluster which is running on AWS using the EKS.
+This page is intended to help developers access and perform maintenance tasks in the Production Mattermost Kubernetes Cluster running on AWS using EKS.
 
+## Set up local environment to access K8s
 
-## Setup local environment to access K8s
+First, make sure you have installed `kubectl` version 1.10 or later.
 
-First if you don't have `kubectl` installed you will need to install, also if your `kubectl` is older then version 1.10 you need to update.
+Also you will need the AWS Keys for the Main Mattermost AWS account. You can get one using Onelogin following these [instructions](../../onelogin-aws).
 
-Also you will need the AWS Keys for the Main Mattermost AWS account. You can get one using Onelogin, please follow this [instructions](../../onelogin-aws)
-
-When using the Onelogin-aws and you want to get the Kubernetes configuration please select the main Mattermost AWS account.
+When using the Onelogin-aws for Kubernetes configuration, please select the main Mattermost AWS account.
 
 ### To install kubectl
 
-Follow the instructions in this [page](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+Follow the instructions on this [page](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
 
 ### Configure kubectl for Amazon EKS
 
-Follow the instructions in this [page](https://docs.aws.amazon.com/eks/latest/userguide/configure-kubectl.html)
+Follow the instructions on this [page](https://docs.aws.amazon.com/eks/latest/userguide/configure-kubectl.html).
 
 ### Create a kubeconfig for Amazon EKS
 
-Follow the instructions in this [page](https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html)
+Follow the instructions on this [page](https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html).
 
 NOTE: Please talk with Carlos to get the cluster name.
 
-
 ### Check if you can see the pods
 
-To check if you can see the pods in the K8s cluster, you can check doing this:
+To check if you can see the pods in the K8s cluster, you can do the following:
 
 ```Bash
 $ kubectl get po -n community
@@ -42,35 +40,32 @@ mattermost-community-1                            1/1     Running   0          2
 mattermost-community-jobserver-65985bfc47-88qq9   1/1     Running   0          5h
 ```
 
+## Switch Back to EC2
 
-# Switch Back to EC2
+This will be temporary because we are aiming to use Kubernetes for `community.mattermost.com`.
 
-This will be a temporary because we are aiming to use only Kubernetes for the `community.mattermost.com`.
+If you need to switch back to EC2 machines, carry out the following actions:
 
-For any reason or something really bad happens and you need to switch back to the EC2 machines you need to do the following:
+    - Log in to the main Mattermost AWS account.
+    - Go to `Route53`.
+    - Select `mattermost.com`.
+    - Delete the entries for `community` and `pre-release`.
+    - Add two entries for `pre-release` with a CNAME pointing to the proxy-server (you can find the DNS names by filtering for `pre-release` in the EC2 Dashboard).
 
-    - Login in the main Mattermost AWS account
-    - Go to the Route53
-    - Select the `mattermost.com`
-    - Delete the entries for `community` and `pre-release`
-    - Add a two entries for `pre-release` with a CNAME pointing to the proxy-server (the DNS names you can get in the EC2 Dashboard and filter by `pre-release`)
+Wait for the DNS renew, try to access the server, andm kae sure all EC2 servers are getting updates and are running.
 
-    Wait for the DNS renew and try to access.
-    All the EC2 servers are getting updates and they are up and running.
+## Troubleshooting
 
-
-# Troubleshooting
-
-#### Namespaces
+## Namespaces
 
 We are using two namespaces to deploy Mattermost
 
-    - `community` namespace holds the Mattermost deployment which uses the Release Branch or a stable release and the ingress is pointing to `https://community.mattermost.com` and `https://pre-release.mattermost.com`
-    - `community-daily` namespace holds the Mattermost deployment which uses the master branch and the ingress is pointing to `https://community-daily.mattermost.com`
+    - `community` namespace holds the Mattermost deployment which uses the release branch or a stable release and the ingress is pointing to `https://community.mattermost.com` and `https://pre-release.mattermost.com`
+    - `community-daily` namespace holds the Mattermost deployment which uses the `master` branch and the ingress is pointing to `https://community-daily.mattermost.com`
 
-### Check if the PODS are running
+## Check if the PODS are running
 
-To check if the pods are running in both namespaces you can run the following command:
+To check if the pods are running in both namespaces, you can run the following command:
 
 ```Bash
 $ kubectl get po -n community
@@ -86,7 +81,7 @@ mattermost-community-daily-1                            1/1     Running   0     
 mattermost-community-daily-jobserver-78f7cbf756-wls4f   1/1     Running   0          2h
 ```
 
-If one or more pods show the status != `Running` you can use the describe and logs to check what is wrong
+If one or more pods show a status != `Running`, you can use the `describe` and `logs` commands below to investigate what is wrong:
 
 Describe the pod:
 
